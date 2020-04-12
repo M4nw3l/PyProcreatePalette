@@ -107,8 +107,12 @@ class Palette:
     lines = value.splitlines()
     for x in range(min(len(lines), cls.max_rows)):
       row = cls.hex_regex.findall(lines[x])
-      for y in range(min(len(row), cls.row_size)):
-        instance[x * cls.row_size + y] = Swatch.from_hex(row[y])
+      for y in range(len(row)):
+        index = x * cls.row_size + y
+        if index < cls.max_length:
+          instance[index] = Swatch.from_hex(row[y])
+        else:
+          return instance
     return instance
 
 
@@ -117,9 +121,15 @@ def main():
   paletteFile = None
   paletteString = None
 
-  parser = argparse.ArgumentParser()
-  parser.add_argument(
-    'command', choices=['create', 'view'], nargs='?', default='view'
+  parser = argparse.ArgumentParser(description='Procreate palette utility')
+  commands = parser.add_mutually_exclusive_group()
+  commands.add_argument(
+    'create',
+    nargs='?',
+    help='Create Procreate palette from hexadecimal colours'
+  )
+  commands.add_argument(
+    'view', nargs='?', help='Extract and view Procreate palette json file'
   )
   args = parser.parse_args()
 
@@ -127,13 +137,12 @@ def main():
     paletteFile = appex.get_file_path()
     paletteString = appex.get_text()
 
-  command = args.command
-  if command == 'create':
+  if not args.create is None:
     palette = Palette.from_string(paletteString)
     path = os.path.join(tempfile.gettempdir(), palette.name + '.swatches')
     palette.save(path)
     console.open_in(path)
-  elif command == 'view':
+  elif not args.view is None:
     palette = paletteFile and Palette.from_file(paletteFile) or Palette()
     print(palette)
   else:
