@@ -15,9 +15,13 @@ import console
 
 class Swatch:
 	def __init__(self, jsonData=None):
-		self.jsonData = jsonData or { 'hue': 0.0, 'saturation': 0.0, 'brightness': 0.0, 
-																	'alpha': 1, 'colorSpace': 0 }
-																	
+		self.jsonData = jsonData or {
+			'hue': 0.0,
+			'saturation': 0.0, 
+			'brightness': 0.0, 
+			'alpha': 1, 
+			'colorSpace': 0 }
+
 	def __str__(self):
 		return str(self.jsonData)
 		
@@ -52,8 +56,9 @@ class Palette:
 	json_key_swatches = 'swatches'
 	hex_regex = re.compile('(?P<value>#?[A-Fa-f0-9]{2,6})')
 	def __init__(self, jsonData=None):
-			self.jsonData = jsonData or { self.json_key_name: 'Untitled Palette', 
-																		self.json_key_swatches: [None] * self.max_length }
+			self.jsonData = jsonData or { 
+				self.json_key_name: 'Untitled Palette',
+				self.json_key_swatches: [None] * self.max_length }
 			self.jsonSwatches = self.jsonData[self.json_key_swatches]
 	
 	def __len__(self):
