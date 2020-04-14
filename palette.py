@@ -105,10 +105,10 @@ class Palette:
   def from_string(cls, value):
     instance = cls()
     lines = value.splitlines()
-    for x in range(min(len(lines), cls.max_rows)):
+    for x in range(len(lines)):
       row = cls.hex_regex.findall(lines[x])
       for y in range(len(row)):
-        index = x * cls.row_size + y
+        index = (x % cls.max_rows) * cls.row_size + y
         if index < cls.max_length:
           instance[index] = Swatch.from_hex(row[y])
         else:
