@@ -154,8 +154,7 @@ def main():
     palette = paletteFile and Palette.from_file(paletteFile) or Palette()
     print(palette)
   else:
-    print('Unknown command: ' + command)
-
+  	parser.print_help()
 
 if __name__ == "__main__":
   main()
