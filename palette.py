@@ -29,10 +29,8 @@ class Swatch:
 
   @property
   def hsv(self):
-    return (
-      self.jsonData['hue'], self.jsonData['saturation'],
-      self.jsonData['brightness']
-    )
+    return (self.jsonData['hue'], self.jsonData['saturation'],
+            self.jsonData['brightness'])
 
   @hsv.setter
   def hsv(self, value):
@@ -137,19 +135,15 @@ def main():
   commands.add_argument(
     'create',
     nargs='?',
-    help='Create Procreate palette (.swatches) files from hex colours'
-  )
+    help='Create Procreate palette (.swatches) files from hex colours')
   commands.add_argument(
     'view',
     nargs='?',
-    help='Extract and view json from Procreate palette (.swatches) file'
-  )
+    help='Extract and view json from Procreate palette (.swatches) file')
   parser.add_argument(
-    'input', nargs='?', help='.swatches File path or hex values string'
-  )
+    'input', nargs='?', help='.swatches File path or hex values string')
   parser.add_argument(
-    'output', nargs='?', help='.json File or .swatches folder output path'
-  )
+    'output', nargs='?', help='.json File or .swatches folder output path')
   args = parser.parse_args()
 
   is_running_extension = False
@@ -164,9 +158,8 @@ def main():
   if not args.create is None and not paletteString is None:
     palettes = Palette.from_string(paletteString)
     for palette in palettes:
-      path = os.path.join(
-        args.output or tempfile.gettempdir(), palette.name + '.swatches'
-      )
+      path = os.path.join(args.output or tempfile.gettempdir(),
+                          palette.name + '.swatches')
       palette.save(path)
       if is_running_extension:
         console.open_in(path)
