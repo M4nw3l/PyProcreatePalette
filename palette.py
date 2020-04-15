@@ -103,29 +103,32 @@ class Palette:
 
   @classmethod
   def from_string(cls, value):
+    instances = []
     instance = cls()
-    lines = value.splitlines()
     counts = [0] * cls.max_rows
-    for x in range(len(lines)):
-      rowIndex = (x % cls.max_rows)
-      while counts[rowIndex] == cls.row_size:
-        rowIndex += 1
-        if rowIndex == cls.max_rows:
-          return instance
-
-      row = cls.hex_regex.findall(lines[x])
-      for y in range(len(row)):
+    lines = value.splitlines()
+    for y in range(len(lines)):
+      values = cls.hex_regex.findall(lines[y])
+      rowIndex = y % cls.max_rows
+      for value in values:
+        while counts[rowIndex] == cls.row_size and rowIndex < cls.max_rows - 1:
+          rowIndex += 1
         index = rowIndex * cls.row_size + counts[rowIndex]
-        if index < cls.max_length:
-          instance[index] = Swatch.from_hex(row[y])
-          counts[rowIndex] += 1
-        else:
-          return instance
-    return instance
+        if index == cls.max_length:
+          instances.append(instance)
+          instance = cls()
+          instance.name += ' ' + len(instances)
+          counts = [0] * cls.max_rows
+          rowIndex = 0
+          index = 0
+        instance[index] = Swatch.from_hex(value)
+        counts[rowIndex] += 1
+    if any(instance.jsonSwatches):
+      instances.append(instance)
+    return instances
 
 
 def main():
-  palette = None
   paletteFile = None
   paletteString = None
 
@@ -134,27 +137,49 @@ def main():
   commands.add_argument(
     'create',
     nargs='?',
-    help='Create Procreate palette from hexadecimal colours'
+    help='Create Procreate palette (.swatches) files from hex colours'
   )
   commands.add_argument(
-    'view', nargs='?', help='Extract and view Procreate palette json file'
+    'view',
+    nargs='?',
+    help='Extract and view json from Procreate palette (.swatches) file'
+  )
+  parser.add_argument(
+    'input', nargs='?', help='.swatches File path or hex values string'
+  )
+  parser.add_argument(
+    'output', nargs='?', help='.json File or .swatches folder output path'
   )
   args = parser.parse_args()
 
-  if appex.is_running_extension():
+  is_running_extension = False
+  if not appex is None and appex.is_running_extension():
+    is_running_extension = True
     paletteFile = appex.get_file_path()
     paletteString = appex.get_text()
-
-  if not args.create is None:
-    palette = Palette.from_string(paletteString)
-    path = os.path.join(tempfile.gettempdir(), palette.name + '.swatches')
-    palette.save(path)
-    console.open_in(path)
-  elif not args.view is None:
-    palette = paletteFile and Palette.from_file(paletteFile) or Palette()
-    print(palette)
   else:
-  	parser.print_help()
+    paletteFile = args.input
+    paletteString = args.input
+
+  if not args.create is None and not paletteString is None:
+    palettes = Palette.from_string(paletteString)
+    for palette in palettes:
+      path = os.path.join(
+        args.output or tempfile.gettempdir(), palette.name + '.swatches'
+      )
+      palette.save(path)
+      if is_running_extension:
+        console.open_in(path)
+  elif not args.view is None and not paletteFile is None:
+    palette = paletteFile and Palette.from_file(paletteFile) or Palette()
+    if args.output is None:
+      print(palette)
+    else:
+      with open(args.output, 'w') as jsonFile:
+        jsonFile.write(palette)
+  else:
+    parser.print_help()
+
 
 if __name__ == "__main__":
   main()
