@@ -1,5 +1,5 @@
 # PyProcreatePallete
-Procreate palette import / export script that runs with Pythonista 3
+Procreate .swatches import / export script that runs with Pythonista 3
 
 ## palette.py
 ```
