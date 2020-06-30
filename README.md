@@ -1,5 +1,5 @@
-# PyProcreate
-Pythonista scripts for Procreate
+# PyProcreatePallete
+Procreate palette import / export script that runs with Pythonista 3
 
 ## palette.py
 ```
